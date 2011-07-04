@@ -26,7 +26,7 @@
 #include <KLocale>
 
 // http://vkontakte.ru/developers.php?o=-1&p=getProfiles
-UserInfoJob::UserInfoJob ( const QString& accessToken )
+UserInfoJob::UserInfoJob(const QString& accessToken)
     : VkontakteJob ("getProfiles", accessToken)
 {
     // The complete list of fields
@@ -70,16 +70,16 @@ void UserInfoJob::prepareQueryItems()
 
 UserInfoPtr UserInfoJob::handleSingleData(const QVariant& data)
 {
-     UserInfoPtr userInfo = UserInfoPtr ( new UserInfo() );
-     QJson::QObjectHelper::qvariant2qobject ( data.toMap(), userInfo.data() );
+     UserInfoPtr userInfo = UserInfoPtr(new UserInfo());
+     QJson::QObjectHelper::qvariant2qobject(data.toMap(), userInfo.data());
      return userInfo;
 }
 
 void UserInfoJob::handleData(const QVariant& data)
 {
-    foreach( const QVariant &item, data.toList() ) {
-        m_userInfo.append( handleSingleData(item) );
-    }    
+    foreach (const QVariant &item, data.toList()) {
+        m_userInfo.append(handleSingleData(item));
+    }
 }
 
 #include "userinfojob.moc"

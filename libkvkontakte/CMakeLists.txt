@@ -23,6 +23,8 @@ set(libkvkontakte_SRCS
     noteinfo.cpp
     noteaddjob.cpp
     allmessageslistjob.cpp
+    newsiteminfo.cpp
+    newsfeedjob.cpp
 
     qintlist.cpp
     util.cpp
@@ -54,6 +56,8 @@ if(KDEPIM_44_COMPAT)
 else(KDEPIM_44_COMPAT)
   target_link_libraries(kvkontakte ${KDEPIMLIBS_KCALCORE_LIBS})
 endif(KDEPIM_44_COMPAT)
+
+target_link_libraries(kvkontakte krss)
 
 set_target_properties(kvkontakte PROPERTIES VERSION ${LIB_VERSION} SOVERSION ${LIB_SOVERSION})
 install(TARGETS kvkontakte ${INSTALL_TARGETS_DEFAULT_ARGS})

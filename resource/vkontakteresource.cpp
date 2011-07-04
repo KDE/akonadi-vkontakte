@@ -40,6 +40,8 @@
 #include <akonadi/changerecorder.h>
 #include <libkvkontakte/userinfofulljob.h>
 #include <libkvkontakte/allmessageslistjob.h>
+#include <libkvkontakte/newsfeedjob.h>
+#include <krss/item.h>
 
 using namespace Akonadi;
 
@@ -48,6 +50,7 @@ static const char * messagesRID = "private_messages";
 //static const char * eventsRID = "events";
 //static const char * eventMimeType = "application/x-vnd.akonadi.calendar.event";
 static const char * notesRID = "notes";
+static const char * newsfeedRID = "newsfeed";
 
 VkontakteResource::VkontakteResource( const QString &id )
     : ResourceBase( id )
@@ -183,6 +186,16 @@ void VkontakteResource::retrieveItems( const Akonadi::Collection &collection )
         connect(messagesJob, SIGNAL(result(KJob*)), this, SLOT(messageListFetched(KJob*)));
         messagesJob->start();
     }
+    else if ( collection.remoteId() == newsfeedRID )
+    {
+        m_idle = false;
+        emit status( Running, i18n( "Preparing sync of news feed." ) );
+        emit percent( 0 );
+        NewsfeedJob * const newsfeedJob = new NewsfeedJob(Settings::self()->accessToken());
+        m_currentJobs << newsfeedJob;
+        connect(newsfeedJob, SIGNAL(result(KJob*)), this, SLOT(newsListFetched(KJob*)));
+        newsfeedJob->start();
+    }
     else
     {
         // This can not happen
@@ -269,7 +282,17 @@ void VkontakteResource::retrieveCollections()
     messagesDisplayAttribute->setIconName( "vkontakteresource" );
     messages.addAttribute( messagesDisplayAttribute );
 
-    collectionsRetrieved( Collection::List() << friends /*<< events*/ << notes << messages );
+    Collection newsfeed;
+    newsfeed.setRemoteId(newsfeedRID);
+    newsfeed.setName( i18n( "Vkontakte News" ) );
+    newsfeed.setParentCollection( Akonadi::Collection::root() );
+    newsfeed.setContentMimeTypes( QStringList() << KRss::Item::mimeType() << Collection::mimeType() );
+    newsfeed.setRights(Collection::ReadOnly);
+    EntityDisplayAttribute * const newsDisplayAttribute = new EntityDisplayAttribute();
+    newsDisplayAttribute->setIconName( "vkontakteresource" );
+    newsfeed.addAttribute( newsDisplayAttribute );
+
+    collectionsRetrieved( Collection::List() << friends /*<< events*/ << notes << messages << newsfeed );
 }
 
 /*void VkontakteResource::itemRemoved(const Akonadi::Item &item)

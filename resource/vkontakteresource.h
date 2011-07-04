@@ -83,6 +83,8 @@ private Q_SLOTS:
     //void noteAddJobFinished( KJob *job );
     //void deleteJobFinished( KJob *job );
 
+    void newsListFetched(KJob *job);
+
 private:
     void fetchPhotos();
     void resetState();
@@ -94,6 +96,7 @@ private:
     void finishEventsFetching();
     void finishNotesFetching();
     void finishMessagesFetching();
+    void finishNewsFetching();
 
     // Friends that are already stored on the Akonadi server
     QMap<int, KDateTime> m_existingFriends;
