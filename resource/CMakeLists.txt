@@ -1,9 +1,7 @@
-project(vkontakteresource)
 
 find_package(Boost 1.34.0)
 macro_log_feature(Boost_FOUND "Boost" "Boost C++ Libraries" "http://www.boost.org" TRUE "1.34.0" "Required by Akonadi.")
 
-add_definitions(-DRESOURCE_VERSION=\\"${RESOURCE_VERSION}\\")
 if (XSLTPROC_EXECUTABLE)
   macro( kcfg_generate_dbus_interface _kcfg _name )
     add_custom_command(
@@ -25,6 +23,8 @@ if(KDEPIM_44_COMPAT)
 endif(KDEPIM_44_COMPAT)
 
 find_package(KdepimLibs 4.5.63 REQUIRED)
+
+configure_file(config.h.cmake "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}" )
 
@@ -55,9 +55,14 @@ if (Q_WS_MAC)
   set_target_properties(akonadi_vkontakte_resource PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "KDE Akonadi VKontakte Resource")
 endif (Q_WS_MAC)
 
-include_directories (
+include_directories(
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_BINARY_DIR}
+  ${KDE4_INCLUDES}
+  ${QJSON_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
   ${KDEPIMLIBS_INCLUDE_DIRS}
+  ${LIBKVKONTAKTE_INCLUDES}
 )
 
 target_link_libraries( akonadi_vkontakte_resource
@@ -68,7 +73,7 @@ target_link_libraries( akonadi_vkontakte_resource
   ${QT_QTDBUS_LIBRARY}
   ${KDE4_KDECORE_LIBS}
   ${KDEPIMLIBS_KMIME_LIBS}
-  kvkontakte
+  ${LIBKVKONTAKTE_LIBRARIES}
 )
 
 if(KDEPIM_44_COMPAT)

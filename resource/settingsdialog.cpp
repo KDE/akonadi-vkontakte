@@ -20,6 +20,7 @@
 #include "settingsdialog.h"
 #include "vkontakteresource.h"
 #include "settings.h"
+#include <config.h>
 
 #include <libkvkontakte/authenticationdialog.h>
 #include <libkvkontakte/userinfojob.h>
