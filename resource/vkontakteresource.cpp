@@ -168,7 +168,7 @@ void VkontakteResource::retrieveItems( const Akonadi::Collection &collection )
         m_idle = false;
         emit status( Running, i18n( "Preparing sync of notes list." ) );
         emit percent( 0 );
-        Vkontakte::AllNotesListJob * const notesJob = new Vkontakte::AllNotesListJob( Settings::self()->accessToken(), "0" );
+        Vkontakte::AllNotesListJob * const notesJob = new Vkontakte::AllNotesListJob(Settings::self()->accessToken(), 0);
 //        notesJob->setLowerLimit(KDateTime::fromString( Settings::self()->lowerLimit(), "%Y-%m-%d" ));
         m_currentJobs << notesJob;
         connect( notesJob, SIGNAL(result(KJob*)), this, SLOT(noteListFetched(KJob*)) );
