@@ -168,7 +168,7 @@ void VkontakteResource::retrieveItems( const Akonadi::Collection &collection )
         m_idle = false;
         emit status( Running, i18n( "Preparing sync of notes list." ) );
         emit percent( 0 );
-        AllNotesListJob * const notesJob = new AllNotesListJob( Settings::self()->accessToken(), "0" );
+        Vkontakte::AllNotesListJob * const notesJob = new Vkontakte::AllNotesListJob( Settings::self()->accessToken(), "0" );
 //        notesJob->setLowerLimit(KDateTime::fromString( Settings::self()->lowerLimit(), "%Y-%m-%d" ));
         m_currentJobs << notesJob;
         connect( notesJob, SIGNAL(result(KJob*)), this, SLOT(noteListFetched(KJob*)) );
@@ -179,7 +179,7 @@ void VkontakteResource::retrieveItems( const Akonadi::Collection &collection )
         m_idle = false;
         emit status( Running, i18n( "Preparing sync of messages list." ) );
         emit percent( 0 );
-        AllMessagesListJob * const messagesJob = new AllMessagesListJob(Settings::self()->accessToken());
+        Vkontakte::AllMessagesListJob * const messagesJob = new Vkontakte::AllMessagesListJob(Settings::self()->accessToken());
         m_currentJobs << messagesJob;
         connect(messagesJob, SIGNAL(result(KJob*)), this, SLOT(messageListFetched(KJob*)));
         messagesJob->start();
@@ -202,7 +202,7 @@ bool VkontakteResource::retrieveItem(const Akonadi::Item &item, const QSet<QByte
     if (item.mimeType() == "text/directory") {
         // TODO: Is this ever called??
         m_idle = false;
-        UserInfoFullJob * const friendJob = new UserInfoFullJob( Settings::self()->accessToken(), item.remoteId().toInt() );
+        Vkontakte::UserInfoFullJob * const friendJob = new Vkontakte::UserInfoFullJob( Settings::self()->accessToken(), item.remoteId().toInt() );
         m_currentJobs << friendJob;
         friendJob->setProperty( "Item", QVariant::fromValue( item ) );
         connect( friendJob, SIGNAL(result(KJob*)), this, SLOT(friendJobFinished(KJob*)) );
@@ -210,7 +210,7 @@ bool VkontakteResource::retrieveItem(const Akonadi::Item &item, const QSet<QByte
     }
     else if (item.mimeType() == "text/x-vnd.akonadi.note") {
         m_idle = false;
-        NoteJob * const noteJob = new NoteJob(Settings::self()->accessToken(), item.remoteId().toInt());
+        Vkontakte::NoteJob * const noteJob = new Vkontakte::NoteJob(Settings::self()->accessToken(), item.remoteId().toInt());
         m_currentJobs << noteJob;
         noteJob->setProperty( "Item", QVariant::fromValue( item ) );
         connect( noteJob, SIGNAL(result(KJob*)), this, SLOT(noteJobFinished(KJob*)) );
@@ -329,7 +329,7 @@ void VkontakteResource::retrieveCollections()
 // }
 
 // static
-KABC::Addressee VkontakteResource::toPimAddressee(const UserInfo &o)
+KABC::Addressee VkontakteResource::toPimAddressee(const Vkontakte::UserInfo &o)
 {
     KABC::Addressee addressee;
     addressee.setGivenName( o.firstName() );
@@ -339,7 +339,7 @@ KABC::Addressee VkontakteResource::toPimAddressee(const UserInfo &o)
     addressee.setUrl( o.profileUrl() );
     addressee.setBirthday( QDateTime( o.birthday() ) );
     //addressee.setOrganization(mCompany);
-    if (o.timezone() != UserInfo::INVALID_TIMEZONE) {
+    if (o.timezone() != Vkontakte::UserInfo::INVALID_TIMEZONE) {
         addressee.setTimeZone(KABC::TimeZone(o.timezone()));
     }
     //addressee.insertCustom("KADDRESSBOOK", "X-Profession", mProfession);
@@ -368,7 +368,7 @@ KABC::Addressee VkontakteResource::toPimAddressee(const UserInfo &o)
 }
 
 // static
-KMime::Message::Ptr VkontakteResource::toPimNote(const NoteInfo &o)
+KMime::Message::Ptr VkontakteResource::toPimNote(const Vkontakte::NoteInfo &o)
 {
     KMime::Message * const note = new KMime::Message();
 
@@ -392,7 +392,7 @@ KMime::Message::Ptr VkontakteResource::toPimNote(const NoteInfo &o)
 }
 
 KMime::Message::Ptr VkontakteResource::toPimMessage(
-    const MessageInfo &o,
+    const Vkontakte::MessageInfo &o,
     QString userAddress, QString ownAddress,
     QString messageId, QString inReplyTo)
 {

@@ -55,7 +55,7 @@ void VkontakteResource::initialItemFetchFinished( KJob* job )
         setItemStreamingEnabled( true );
 
         // Getting the list of friends of the current user
-        FriendListJob * const friendListJob = new FriendListJob( Settings::self()->accessToken(), "0" );
+        Vkontakte::FriendListJob * const friendListJob = new Vkontakte::FriendListJob( Settings::self()->accessToken(), "0" );
         m_currentJobs << friendListJob;
         connect( friendListJob, SIGNAL(result(KJob*)), this, SLOT(friendListJobFinished(KJob*)) );
         emit status( Running, i18n( "Retrieving friends list." ) );
@@ -69,16 +69,16 @@ void VkontakteResource::friendListJobFinished( KJob* job )
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    FriendListJob * const friendListJob = dynamic_cast<FriendListJob*>( job );
+    Vkontakte::FriendListJob * const friendListJob = dynamic_cast<Vkontakte::FriendListJob*>( job );
     Q_ASSERT( friendListJob );
     m_currentJobs.removeAll(job);
 
     if ( friendListJob->error() ) {
         abortWithError( i18n( "Unable to get list of friends from VKontakte server: %1", friendListJob->errorText() ),
-                        friendListJob->error() == VkontakteJob::AuthenticationProblem );
+                        friendListJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
     } else {
         // Figure out which items are new or changed
-        foreach( const UserInfoPtr &user, friendListJob->friends() ) {
+        foreach( const Vkontakte::UserInfoPtr &user, friendListJob->friends() ) {
             m_newOrChangedFriends.append( user );
         }
 
@@ -86,7 +86,7 @@ void VkontakteResource::friendListJobFinished( KJob* job )
         Item::List removedItems;
         foreach (const int friendId, m_existingFriends.keys()) {
             bool found = false;
-            foreach( const UserInfoPtr &user, friendListJob->friends() ) {
+            foreach( const Vkontakte::UserInfoPtr &user, friendListJob->friends() ) {
                 if ( user->uid() == friendId ) {
                     found = true;
                     break;
@@ -113,11 +113,11 @@ void VkontakteResource::friendListJobFinished( KJob* job )
 
 void VkontakteResource::fetchNewOrChangedFriends()
 {
-    QIntList newOrChangedFriendIds;
-    foreach (const UserInfoPtr &user, m_newOrChangedFriends) {
+    Vkontakte::QIntList newOrChangedFriendIds;
+    foreach (const Vkontakte::UserInfoPtr &user, m_newOrChangedFriends) {
         newOrChangedFriendIds.append(user->uid());
     }
-    UserInfoFullJob * const friendJob = new UserInfoFullJob(
+    Vkontakte::UserInfoFullJob * const friendJob = new Vkontakte::UserInfoFullJob(
         Settings::self()->accessToken(), newOrChangedFriendIds);
     m_currentJobs << friendJob;
     connect( friendJob, SIGNAL(result(KJob*)), this, SLOT(detailedFriendListJobFinished(KJob*)) );
@@ -129,7 +129,7 @@ void VkontakteResource::detailedFriendListJobFinished( KJob* job )
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    UserInfoFullJob * const friendJob = dynamic_cast<UserInfoFullJob*>( job );
+    Vkontakte::UserInfoFullJob * const friendJob = dynamic_cast<Vkontakte::UserInfoFullJob*>( job );
     Q_ASSERT( friendJob );
     m_currentJobs.removeAll(job);
 
@@ -148,8 +148,8 @@ void VkontakteResource::fetchPhotos()
 {
     m_idle = false;
     m_numPhotosFetched = 0;
-    foreach(const UserInfoPtr &f, m_pendingFriends) {
-        ProfilePhotoJob * const photoJob = new ProfilePhotoJob(f);
+    foreach(const Vkontakte::UserInfoPtr &f, m_pendingFriends) {
+        Vkontakte::ProfilePhotoJob * const photoJob = new Vkontakte::ProfilePhotoJob(f);
         m_currentJobs << photoJob;
         photoJob->setProperty("friend", QVariant::fromValue( f ));
         connect(photoJob, SIGNAL(result(KJob*)), this, SLOT(photoJobFinished(KJob*)));
@@ -176,9 +176,9 @@ void VkontakteResource::photoJobFinished(KJob* job)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    ProfilePhotoJob * const photoJob = dynamic_cast<ProfilePhotoJob*>( job );
+    Vkontakte::ProfilePhotoJob * const photoJob = dynamic_cast<Vkontakte::ProfilePhotoJob*>( job );
     Q_ASSERT(photoJob);
-    const UserInfoPtr user = job->property("friend").value<UserInfoPtr>();
+    const Vkontakte::UserInfoPtr user = job->property("friend").value<Vkontakte::UserInfoPtr>();
     m_currentJobs.removeOne(job);
 
     if (photoJob->error()) {
@@ -213,7 +213,7 @@ void VkontakteResource::friendJobFinished(KJob* job)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    UserInfoFullJob * const friendJob = dynamic_cast<UserInfoFullJob*>( job );
+    Vkontakte::UserInfoFullJob * const friendJob = dynamic_cast<Vkontakte::UserInfoFullJob*>( job );
     Q_ASSERT( friendJob );
     Q_ASSERT( friendJob->userInfo().size() == 1 );
     m_currentJobs.removeAll(job);

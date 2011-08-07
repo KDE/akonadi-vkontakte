@@ -39,18 +39,18 @@ using namespace Akonadi;
 void VkontakteResource::noteListFetched( KJob* job )
 {
     Q_ASSERT( !m_idle );
-    AllNotesListJob * const listJob = dynamic_cast<AllNotesListJob*>( job );
+    Vkontakte::AllNotesListJob * const listJob = dynamic_cast<Vkontakte::AllNotesListJob*>( job );
     Q_ASSERT( listJob );
     m_currentJobs.removeAll(job);
 
     if ( listJob->error() ) {
         abortWithError( i18n( "Unable to get notes from server: %1", listJob->errorString() ),
-                        listJob->error() == VkontakteJob::AuthenticationProblem );
+                        listJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
     } else {
         setItemStreamingEnabled( true );
 
         Item::List noteItems;
-        foreach( const NoteInfoPtr &noteInfo, listJob->notes() ) {
+        foreach( const Vkontakte::NoteInfoPtr &noteInfo, listJob->notes() ) {
             Item note;
             note.setRemoteId( QString::number(noteInfo->nid()) ); // FIXME: are all nids unique, or may be different users may have notes with the same nids?
             KMime::Message::Ptr msg = toPimNote(*noteInfo);
@@ -77,7 +77,7 @@ void VkontakteResource::noteJobFinished(KJob* job)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    NoteJob * const noteJob = dynamic_cast<NoteJob*>( job );
+    Vkontakte::NoteJob * const noteJob = dynamic_cast<Vkontakte::NoteJob*>( job );
     Q_ASSERT( noteJob );
     m_currentJobs.removeAll(job);
 

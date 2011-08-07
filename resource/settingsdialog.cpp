@@ -81,7 +81,7 @@ void SettingsDialog::showAuthenticationDialog()
                 << "wall"
                 << "messages"
                 << "offline";
-    AuthenticationDialog * const authDialog = new AuthenticationDialog( this );
+    Vkontakte::AuthenticationDialog * const authDialog = new Vkontakte::AuthenticationDialog( this );
     authDialog->setAppId( Settings::self()->appID() );
     authDialog->setPermissions( permissions );
     connect( authDialog, SIGNAL(authenticated(QString)),
@@ -131,7 +131,7 @@ void SettingsDialog::resetAuthentication()
 void SettingsDialog::updateUserName()
 {
     if ( Settings::self()->userName().isEmpty() && ! Settings::self()->accessToken().isEmpty() ) {
-        GetVariableJob * const job = new GetVariableJob( Settings::self()->accessToken(), 1281 ); // get display name
+        Vkontakte::GetVariableJob * const job = new Vkontakte::GetVariableJob( Settings::self()->accessToken(), 1281 ); // get display name
         connect( job, SIGNAL(result(KJob*)), this, SLOT(userInfoJobDone(KJob*)) );
         job->start();
     }
@@ -139,7 +139,7 @@ void SettingsDialog::updateUserName()
 
 void SettingsDialog::userInfoJobDone( KJob* job )
 {
-    GetVariableJob * const userInfoJob = dynamic_cast<GetVariableJob*>( job );
+    Vkontakte::GetVariableJob * const userInfoJob = dynamic_cast<Vkontakte::GetVariableJob*>( job );
     Q_ASSERT( userInfoJob );
     if ( !userInfoJob->error() ) {
         Settings::self()->setUserName( userInfoJob->variable().toString() );

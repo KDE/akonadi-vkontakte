@@ -103,15 +103,15 @@ private:
     *
     * @return A KABC::Addressee of this person.
     */
-    static KABC::Addressee toPimAddressee(const UserInfo &o);
+    static KABC::Addressee toPimAddressee(const Vkontakte::UserInfo &o);
 
     /**
      * Generates a KMime::Message from this note and return a
      * KMime::Message::Ptr to it.
      */
-    static KMime::Message::Ptr toPimNote(const NoteInfo &o);
+    static KMime::Message::Ptr toPimNote(const Vkontakte::NoteInfo &o);
 
-    KMime::Message::Ptr toPimMessage(const MessageInfo &o,
+    KMime::Message::Ptr toPimMessage(const Vkontakte::MessageInfo &o,
                                      QString userAddress = QString(),
                                      QString ownAddress = QString(),
                                      QString messageId = QString(),
@@ -122,17 +122,17 @@ private:
     QMap<int, KDateTime> m_existingFriends;
 
     // Pending new/changed friends we still need to download
-    QList<UserInfoPtr> m_pendingFriends;
+    QList<Vkontakte::UserInfoPtr> m_pendingFriends;
 
-    QList<UserInfoPtr> m_newOrChangedFriends;
+    QList<Vkontakte::UserInfoPtr> m_newOrChangedFriends;
 
     // Total number of new & changed friends
     int m_numFriends;
     int m_numPhotosFetched;
 
     // For messages retrieval
-    QList<MessageInfoPtr> m_allMessages;
-    QMap<int, UserInfoPtr> m_messagesUsersMap;
+    QList<Vkontakte::MessageInfoPtr> m_allMessages;
+    QMap<int, Vkontakte::UserInfoPtr> m_messagesUsersMap;
 
     bool m_idle;
     QList< QPointer<KJob> > m_currentJobs;

@@ -39,13 +39,13 @@ using namespace Akonadi;
 void VkontakteResource::messageListFetched(KJob *job)
 {
     Q_ASSERT( !m_idle );
-    AllMessagesListJob * const listJob = dynamic_cast<AllMessagesListJob*>(job);
+    Vkontakte::AllMessagesListJob * const listJob = dynamic_cast<Vkontakte::AllMessagesListJob*>(job);
     Q_ASSERT( listJob );
     m_currentJobs.removeAll(job);
 
     if (listJob->error()) {
         abortWithError( i18n( "Unable to get messages from server: %1", listJob->errorString() ),
-                        listJob->error() == VkontakteJob::AuthenticationProblem );
+                        listJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
         return;
     }
 
@@ -56,11 +56,11 @@ void VkontakteResource::messageListFetched(KJob *job)
 
     // IDs of users that you communicated with using messages
     QSet<int> uidsSet; // this will remove duplicates
-    foreach (const MessageInfoPtr &item, m_allMessages) {
+    foreach (const Vkontakte::MessageInfoPtr &item, m_allMessages) {
         uidsSet.insert(item->uid());
     }
 
-    UserInfoJob * const usersJob = new UserInfoJob(Settings::self()->accessToken(), uidsSet.toList());
+    Vkontakte::UserInfoJob * const usersJob = new Vkontakte::UserInfoJob(Settings::self()->accessToken(), uidsSet.toList());
     m_currentJobs << usersJob;
     connect(usersJob, SIGNAL(result(KJob*)), this, SLOT(messageListUsersFetched(KJob*)));
     usersJob->start();
@@ -69,23 +69,23 @@ void VkontakteResource::messageListFetched(KJob *job)
 void VkontakteResource::messageListUsersFetched(KJob *job)
 {
     Q_ASSERT(!m_idle);
-    UserInfoJob * const usersJob = dynamic_cast<UserInfoJob*>(job);
+    Vkontakte::UserInfoJob * const usersJob = dynamic_cast<Vkontakte::UserInfoJob*>(job);
     Q_ASSERT(usersJob);
     m_currentJobs.removeAll(job);
 
     if (usersJob->error()) {
         abortWithError( i18n( "Unable to get users for message list from server: %1", usersJob->errorString() ),
-                        usersJob->error() == VkontakteJob::AuthenticationProblem );
+                        usersJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
         return;
     }
 
     // TODO: UserInfoJob::userInfoMap
-    QList<UserInfoPtr> usersList = usersJob->userInfo();
-    foreach (const UserInfoPtr user, usersList) {
+    QList<Vkontakte::UserInfoPtr> usersList = usersJob->userInfo();
+    foreach (const Vkontakte::UserInfoPtr user, usersList) {
         m_messagesUsersMap.insert(user->uid(), user);
     }
 
-    DiscussionsListJob * const discussionsJob = new DiscussionsListJob(Settings::self()->accessToken());
+    Vkontakte::DiscussionsListJob * const discussionsJob = new Vkontakte::DiscussionsListJob(Settings::self()->accessToken());
     m_currentJobs << discussionsJob;
     connect(discussionsJob, SIGNAL(result(KJob*)), this, SLOT(messageDiscussionsFetched(KJob*)));
     discussionsJob->start();
@@ -94,24 +94,24 @@ void VkontakteResource::messageListUsersFetched(KJob *job)
 void VkontakteResource::messageDiscussionsFetched(KJob *job)
 {
     Q_ASSERT(!m_idle);
-    DiscussionsListJob * const discussionsJob = dynamic_cast<DiscussionsListJob*>(job);
+    Vkontakte::DiscussionsListJob * const discussionsJob = dynamic_cast<Vkontakte::DiscussionsListJob*>(job);
     Q_ASSERT(discussionsJob);
     m_currentJobs.removeAll(job);
 
     if (discussionsJob->error()) {
         abortWithError( i18n( "Unable to get discussion list from server: %1", discussionsJob->errorString() ),
-                        discussionsJob->error() == VkontakteJob::AuthenticationProblem );
+                        discussionsJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
         return;
     }
 
     QSet<int> discussionIds;
-    foreach (const MessageInfoPtr &message, discussionsJob->list()) {
+    foreach (const Vkontakte::MessageInfoPtr &message, discussionsJob->list()) {
         discussionIds.insert(message->mid());
     }
 
     // TODO: function for this
-    QList<MessageInfoPtr> singleUserMsgs;
-    foreach (const MessageInfoPtr &item, m_allMessages) {
+    QList<Vkontakte::MessageInfoPtr> singleUserMsgs;
+    foreach (const Vkontakte::MessageInfoPtr &item, m_allMessages) {
         // TODO: Multiple-user messages ("chat messages") should be handled differently
         if (item->chatId().isEmpty() && item->chatActive().isEmpty())
             singleUserMsgs.append(item);
@@ -119,7 +119,7 @@ void VkontakteResource::messageDiscussionsFetched(KJob *job)
 
     QMap<int, int> inReplyToMsg;
     for (int i = 0; i < singleUserMsgs.size(); i ++) {
-        const MessageInfoPtr &messageInfo = singleUserMsgs[i];
+        const Vkontakte::MessageInfoPtr &messageInfo = singleUserMsgs[i];
 
         // Trying to find the previous message in the same discussion
         int j = i - 1;
@@ -151,8 +151,8 @@ void VkontakteResource::messageDiscussionsFetched(KJob *job)
 
     Item::List items;
     for (int i = 0; i < singleUserMsgs.size(); i ++) {
-        const MessageInfoPtr &messageInfo = singleUserMsgs[i];
-        UserInfoPtr user = m_messagesUsersMap[messageInfo->uid()];
+        const Vkontakte::MessageInfoPtr &messageInfo = singleUserMsgs[i];
+        Vkontakte::UserInfoPtr user = m_messagesUsersMap[messageInfo->uid()];
         int j = inReplyToMsg[i];
 
         QString userAddress;
