@@ -50,7 +50,7 @@ void VkontakteResource::noteListFetched( KJob* job )
         setItemStreamingEnabled( true );
 
         Item::List noteItems;
-        foreach( const Vkontakte::NoteInfoPtr &noteInfo, listJob->notes() ) {
+        foreach( const Vkontakte::NoteInfoPtr &noteInfo, listJob->list() ) {
             Item note;
             note.setRemoteId( QString::number(noteInfo->nid()) ); // FIXME: are all nids unique, or may be different users may have notes with the same nids?
             KMime::Message::Ptr msg = toPimNote(*noteInfo);
