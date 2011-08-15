@@ -29,7 +29,6 @@
 #include <Akonadi/ItemFetchScope>
 #include <akonadi/changerecorder.h>
 #include <libkvkontakte/friendlistjob.h>
-#include <libkvkontakte/friendjob.h>
 #include <libkvkontakte/userinfofulljob.h>
 #include <libkvkontakte/profilephotojob.h>
 
