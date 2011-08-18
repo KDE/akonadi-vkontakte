@@ -30,7 +30,7 @@
 #include <akonadi/changerecorder.h>
 #include <libkvkontakte/friendlistjob.h>
 #include <libkvkontakte/userinfofulljob.h>
-#include <libkvkontakte/photojobbase.h>
+#include <libkvkontakte/photojob.h>
 
 using namespace Akonadi;
 
@@ -148,7 +148,7 @@ void VkontakteResource::fetchPhotos()
     m_idle = false;
     m_numPhotosFetched = 0;
     foreach(const Vkontakte::UserInfoPtr &f, m_pendingFriends) {
-        Vkontakte::PhotoJobBase * const photoJob = new Vkontakte::PhotoJobBase(KUrl(f->photoMedium()));
+        Vkontakte::PhotoJob * const photoJob = new Vkontakte::PhotoJob(KUrl(f->photoMedium()));
         m_currentJobs << photoJob;
         photoJob->setProperty("friend", QVariant::fromValue( f ));
         connect(photoJob, SIGNAL(result(KJob*)), this, SLOT(photoJobFinished(KJob*)));
@@ -175,7 +175,7 @@ void VkontakteResource::photoJobFinished(KJob* job)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::PhotoJobBase * const photoJob = dynamic_cast<Vkontakte::PhotoJobBase*>(job);
+    Vkontakte::PhotoJob * const photoJob = dynamic_cast<Vkontakte::PhotoJob*>(job);
     Q_ASSERT(photoJob);
     const Vkontakte::UserInfoPtr user = job->property("friend").value<Vkontakte::UserInfoPtr>();
     m_currentJobs.removeOne(job);
