@@ -35,76 +35,89 @@
 using namespace Akonadi;
 
 // Called when fetching from Akonadi database is finished
-void VkontakteResource::initialItemFetchFinished( KJob* job )
+void VkontakteResource::initialItemFetchFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    ItemFetchJob * const itemFetchJob = dynamic_cast<ItemFetchJob*>( job );
+    ItemFetchJob * const job = dynamic_cast<ItemFetchJob*>(kjob);
     Q_ASSERT( itemFetchJob );
     m_currentJobs.removeAll(job);
 
-    if ( itemFetchJob->error() ) {
-        abortWithError( i18n( "Unable to get list of existing friends from the Akonadi server: %1", itemFetchJob->errorString() ) );
-    } else {
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to get list of existing friends from the Akonadi server: %1", job->errorString()));
+    }
+    else
+    {
 //        foreach( const Item &item, itemFetchJob->items() ) {
 //        if ( item.hasAttribute<TimeStampAttribute>() ) // FIXME: why timestamp is needed?
 //            m_existingFriends.insert( item.remoteId(), item.attribute<TimeStampAttribute>()->timeStamp() );
 //        }
 
-        setItemStreamingEnabled( true );
+        setItemStreamingEnabled(true);
 
         // Getting the list of friends of the current user
-        Vkontakte::FriendListJob * const friendListJob = new Vkontakte::FriendListJob( Settings::self()->accessToken(), "0" );
+        Vkontakte::FriendListJob * const friendListJob = new Vkontakte::FriendListJob(Settings::self()->accessToken(), "0");
         m_currentJobs << friendListJob;
-        connect( friendListJob, SIGNAL(result(KJob*)), this, SLOT(friendListJobFinished(KJob*)) );
-        emit status( Running, i18n( "Retrieving friends list." ) );
-        emit percent( 2 );
+        connect(friendListJob, SIGNAL(result(KJob*)), this, SLOT(friendListJobFinished(KJob*)));
+        emit status(Running, i18n("Retrieving friends list."));
+        emit percent(2);
         friendListJob->start();
     }
 }
 
 // Called when FriendListJob is finished
-void VkontakteResource::friendListJobFinished( KJob* job )
+void VkontakteResource::friendListJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::FriendListJob * const friendListJob = dynamic_cast<Vkontakte::FriendListJob*>( job );
-    Q_ASSERT( friendListJob );
-    m_currentJobs.removeAll(job);
+    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Vkontakte::FriendListJob * const job = dynamic_cast<Vkontakte::FriendListJob*>(kjob);
+    Q_ASSERT(friendListJob);
+    m_currentJobs.removeAll(kjob);
 
-    if ( friendListJob->error() ) {
-        abortWithError( i18n( "Unable to get list of friends from VKontakte server: %1", friendListJob->errorText() ),
-                        friendListJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
-    } else {
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to get list of friends from VKontakte server: %1", job->errorText()),
+                       job->error() == Vkontakte::VkontakteJob::AuthenticationProblem);
+    }
+    else
+    {
         // Figure out which items are new or changed
-        foreach( const Vkontakte::UserInfoPtr &user, friendListJob->friends() ) {
-            m_newOrChangedFriends.append( user );
-        }
+        foreach(const Vkontakte::UserInfoPtr &user, job->friends())
+            m_newOrChangedFriends.append(user);
 
         // Delete items that are in the Akonadi DB but no on FB
         Item::List removedItems;
-        foreach (const int friendId, m_existingFriends.keys()) {
+        foreach (const int friendId, m_existingFriends.keys())
+        {
             bool found = false;
-            foreach( const Vkontakte::UserInfoPtr &user, friendListJob->friends() ) {
-                if ( user->uid() == friendId ) {
+            foreach (const Vkontakte::UserInfoPtr &user, job->friends())
+                if (user->uid() == friendId)
+                {
                     found = true;
                     break;
                 }
-            }
-            if ( !found ) {
+
+            if (!found)
+            {
                 kDebug() << friendId << "is no longer your friend :(";
                 Item removedItem;
-                removedItem.setRemoteId( QString::number(friendId) );
-                removedItems.append( removedItem );
+                removedItem.setRemoteId(QString::number(friendId));
+                removedItems.append(removedItem);
             }
         }
-        itemsRetrievedIncremental( Item::List(), removedItems );
+        itemsRetrievedIncremental(Item::List(), removedItems);
 
-        if ( m_newOrChangedFriends.isEmpty() ) {
+        if (m_newOrChangedFriends.isEmpty())
+        {
             finishFriendFetching();
-        } else {
-            emit status( Running, i18nc( "%1 is the number of friends the currently logged in user has in VKontakte.", "Retrieving friends' details (%1 friends total)." ).arg(m_newOrChangedFriends.size()) );
-            emit percent( 5 );
+        }
+        else
+        {
+            emit status(Running,
+                        i18nc("%1 is the number of friends the currently logged in user has in VKontakte.",
+                              "Retrieving friends' details (%1 friends total).").arg(m_newOrChangedFriends.size()));
+            emit percent(5);
             fetchNewOrChangedFriends();
         }
     }
@@ -124,21 +137,24 @@ void VkontakteResource::fetchNewOrChangedFriends()
 }
 
 // UserInfoFullJob for new friends was finished
-void VkontakteResource::detailedFriendListJobFinished( KJob* job )
+void VkontakteResource::detailedFriendListJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::UserInfoFullJob * const friendJob = dynamic_cast<Vkontakte::UserInfoFullJob*>( job );
-    Q_ASSERT( friendJob );
+    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Vkontakte::UserInfoFullJob * const job = dynamic_cast<Vkontakte::UserInfoFullJob*>(kjob);
+    Q_ASSERT(friendJob);
     m_currentJobs.removeAll(job);
 
-    if ( friendJob->error() ) {
-        abortWithError( i18n( "Unable to retrieve friends' information from server: %1", friendJob->errorText() ) );
-    } else {
-        m_pendingFriends = friendJob->userInfo();
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to retrieve friends' information from server: %1", job->errorText()));
+    }
+    else
+    {
+        m_pendingFriends = job->userInfo();
         m_numFriends = m_pendingFriends.size();
-        emit status( Running, i18n( "Retrieving friends' photos." ) );
-        emit percent( 10 );
+        emit status(Running, i18n("Retrieving friends' photos."));
+        emit percent(10);
         fetchPhotos();
     }
 }
@@ -147,10 +163,11 @@ void VkontakteResource::fetchPhotos()
 {
     m_idle = false;
     m_numPhotosFetched = 0;
-    foreach(const Vkontakte::UserInfoPtr &f, m_pendingFriends) {
+    foreach (const Vkontakte::UserInfoPtr &f, m_pendingFriends)
+    {
         Vkontakte::PhotoJob * const photoJob = new Vkontakte::PhotoJob(KUrl(f->photoMedium()));
         m_currentJobs << photoJob;
-        photoJob->setProperty("friend", QVariant::fromValue( f ));
+        photoJob->setProperty("friend", QVariant::fromValue(f));
         connect(photoJob, SIGNAL(result(KJob*)), this, SLOT(photoJobFinished(KJob*)));
         photoJob->start();
     }
@@ -171,59 +188,68 @@ void VkontakteResource::finishFriendFetching()
     resetState();
 }
 
-void VkontakteResource::photoJobFinished(KJob* job)
+void VkontakteResource::photoJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
     Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::PhotoJob * const photoJob = dynamic_cast<Vkontakte::PhotoJob*>(job);
+    Vkontakte::PhotoJob * const job = dynamic_cast<Vkontakte::PhotoJob*>(kjob);
     Q_ASSERT(photoJob);
     const Vkontakte::UserInfoPtr user = job->property("friend").value<Vkontakte::UserInfoPtr>();
-    m_currentJobs.removeOne(job);
+    m_currentJobs.removeOne(kjob);
 
-    if (photoJob->error()) {
-        abortWithError( i18n( "Unable to retrieve friends' photo from server: %1", photoJob->errorText() ) );
-    } else {
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to retrieve friends' photo from server: %1", job->errorText()));
+    }
+    else
+    {
         // Create Item
         KABC::Addressee addressee = toPimAddressee(*user);
-        addressee.setPhoto( KABC::Picture( photoJob->photo() ) );
+        addressee.setPhoto(KABC::Picture(job->photo()));
         Item newUser;
-        newUser.setRemoteId( QString::number(user->uid()) );
-        newUser.setMimeType( "text/directory" );
-        newUser.setPayload<KABC::Addressee>( addressee );
+        newUser.setRemoteId(QString::number(user->uid()));
+        newUser.setMimeType("text/directory");
+        newUser.setPayload<KABC::Addressee>(addressee);
 //        TimeStampAttribute * const timeStampAttribute = new TimeStampAttribute();
 //        timeStampAttribute->setTimeStamp( user->updatedTime() );
 //        newUser.addAttribute( timeStampAttribute );
 
-        itemsRetrievedIncremental( Item::List() << newUser, Item::List() );
+        itemsRetrievedIncremental(Item::List() << newUser, Item::List());
         m_numPhotosFetched ++;
 
-        if (m_numPhotosFetched != m_numFriends) {
+        if (m_numPhotosFetched != m_numFriends)
+        {
             const int alreadyDownloadedFriends = m_numPhotosFetched;
             const float percentageDone = alreadyDownloadedFriends / (float)m_numFriends * 100.0f;
             emit percent(10 + percentageDone * 0.9f);
-        } else {
+        }
+        else
+        {
             itemsRetrievalDone();
             finishFriendFetching();
         }
     }
 }
 
-void VkontakteResource::friendJobFinished(KJob* job)
+void VkontakteResource::friendJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::UserInfoFullJob * const friendJob = dynamic_cast<Vkontakte::UserInfoFullJob*>( job );
-    Q_ASSERT( friendJob );
-    Q_ASSERT( friendJob->userInfo().size() == 1 );
+    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Vkontakte::UserInfoFullJob * const job = dynamic_cast<Vkontakte::UserInfoFullJob*>(kjob);
+    Q_ASSERT(friendJob);
+    Q_ASSERT(friendJob->userInfo().size() == 1);
     m_currentJobs.removeAll(job);
 
-    if ( friendJob->error() ) {
-        abortWithError( i18n( "Unable to get information about friend from server: %1", friendJob->errorText() ) );
-    } else {
-        Item user = friendJob->property( "Item" ).value<Item>();
-        user.setPayload<KABC::Addressee>( toPimAddressee(*friendJob->userInfo().first()) );
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to get information about friend from server: %1", job->errorText()));
+    }
+    else
+    {
+        Item user = job->property("Item").value<Item>();
+        user.setPayload<KABC::Addressee>(toPimAddressee(*job->userInfo().first()));
         // TODO: What about picture here?
-        itemRetrieved( user );
+        itemRetrieved(user);
         resetState();
     }
 }

@@ -36,18 +36,18 @@ class VkontakteResource : public Akonadi::ResourceBase,
     Q_OBJECT
 
 public:
-    VkontakteResource( const QString &id );
+    VkontakteResource(const QString &id);
     ~VkontakteResource();
 
     using ResourceBase::synchronize;
 
 public Q_SLOTS:
-    virtual void configure( WId windowId );
+    virtual void configure(WId windowId);
 
 protected Q_SLOTS:
     void retrieveCollections();
-    void retrieveItems( const Akonadi::Collection &col );
-    bool retrieveItem( const Akonadi::Item &item, const QSet<QByteArray> &parts );
+    void retrieveItems(const Akonadi::Collection &col);
+    bool retrieveItem(const Akonadi::Item &item, const QSet<QByteArray> &parts);
 
 //    void itemRemoved( const Akonadi::Item &item);
 //    void itemAdded( const Akonadi::Item &item, const Akonadi::Collection &collection );
@@ -62,34 +62,34 @@ private Q_SLOTS:
     void configurationChanged();
 
     // Friends
-    void friendListJobFinished( KJob *job );
-    void friendJobFinished( KJob *job );
-    void photoJobFinished( KJob *job );
-    void detailedFriendListJobFinished( KJob *job );
-    void initialItemFetchFinished( KJob *job );
+    void friendListJobFinished(KJob *kjob);
+    void friendJobFinished(KJob *kjob);
+    void photoJobFinished(KJob *kjob);
+    void detailedFriendListJobFinished(KJob *kjob);
+    void initialItemFetchFinished(KJob *kjob);
 
     // Events
-    //void eventListFetched( KJob *job );
-    //void detailedEventListJobFinished( KJob *job );
+    //void eventListFetched(KJob *kjob);
+    //void detailedEventListJobFinished(KJob *kjob);
     
     // Notes
-    void noteListFetched( KJob *job );
-    void noteJobFinished( KJob *job );
-    //void noteAddJobFinished( KJob *job );
-    //void deleteJobFinished( KJob *job );
+    void noteListFetched(KJob *kjob);
+    void noteJobFinished(KJob *kjob);
+    //void noteAddJobFinished(KJob *kjob);
+    //void deleteJobFinished(KJob *kjob);
 
     // Messages
-    void messageListFetched(KJob *job);
-    void messageListUsersFetched(KJob *job);
-    void messageDiscussionsFetched(KJob *job);
-//     void messageJobFinished(KJob *job);
-    //void noteAddJobFinished( KJob *job );
-    //void deleteJobFinished( KJob *job );
+    void messageListFetched(KJob *kjob);
+    void messageListUsersFetched(KJob *kjob);
+    void messageDiscussionsFetched(KJob *kjob);
+//     void messageJobFinished(KJob *kjob);
+    //void noteAddJobFinished(KJob *kjob);
+    //void deleteJobFinished(KJob *kjob);
 
 private:
     void fetchPhotos();
     void resetState();
-    void abortWithError( const QString& errorMessage, bool authFailure = false );
+    void abortWithError(const QString &errorMessage, bool authFailure = false);
     void abort();
 
     void fetchNewOrChangedFriends();

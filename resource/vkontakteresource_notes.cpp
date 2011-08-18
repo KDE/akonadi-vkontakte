@@ -36,31 +36,35 @@
 
 using namespace Akonadi;
 
-void VkontakteResource::noteListFetched( KJob* job )
+void VkontakteResource::noteListFetched(KJob *kjob)
 {
-    Q_ASSERT( !m_idle );
-    Vkontakte::AllNotesListJob * const listJob = dynamic_cast<Vkontakte::AllNotesListJob*>( job );
-    Q_ASSERT( listJob );
+    Q_ASSERT(!m_idle);
+    Vkontakte::AllNotesListJob * const job = dynamic_cast<Vkontakte::AllNotesListJob*>(kjob);
+    Q_ASSERT(listJob);
     m_currentJobs.removeAll(job);
 
-    if ( listJob->error() ) {
-        abortWithError( i18n( "Unable to get notes from server: %1", listJob->errorString() ),
-                        listJob->error() == Vkontakte::VkontakteJob::AuthenticationProblem );
-    } else {
-        setItemStreamingEnabled( true );
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to get notes from server: %1", job->errorString()),
+                       job->error() == Vkontakte::VkontakteJob::AuthenticationProblem);
+    }
+    else
+    {
+        setItemStreamingEnabled(true);
 
         Item::List noteItems;
-        foreach( const Vkontakte::NoteInfoPtr &noteInfo, listJob->list() ) {
+        foreach (const Vkontakte::NoteInfoPtr &noteInfo, job->list())
+        {
             Item note;
-            note.setRemoteId( QString::number(noteInfo->nid()) ); // FIXME: are all nids unique, or may be different users may have notes with the same nids?
+            note.setRemoteId(QString::number(noteInfo->nid())); // FIXME: are all nids unique, or may be different users may have notes with the same nids?
             KMime::Message::Ptr msg = toPimNote(*noteInfo);
-            note.setPayload<KMime::Message::Ptr>( msg );
-            note.setSize( msg->size() );
-            note.setMimeType( "text/x-vnd.akonadi.note" );
+            note.setPayload<KMime::Message::Ptr>(msg);
+            note.setSize(msg->size());
+            note.setMimeType("text/x-vnd.akonadi.note");
             noteItems.append(note);
         }
 
-        itemsRetrieved( noteItems );
+        itemsRetrieved(noteItems);
         itemsRetrievalDone();
         finishNotesFetching();
     }
@@ -69,25 +73,28 @@ void VkontakteResource::noteListFetched( KJob* job )
 void VkontakteResource::finishNotesFetching()
 {
     emit percent(100);
-    emit status( Idle, i18n( "All notes fetched from server." ) );
+    emit status(Idle, i18n("All notes fetched from server."));
     resetState();
 }
 
-void VkontakteResource::noteJobFinished(KJob* job)
+void VkontakteResource::noteJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
-    Vkontakte::NoteJob * const noteJob = dynamic_cast<Vkontakte::NoteJob*>( job );
-    Q_ASSERT( noteJob );
+    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Vkontakte::NoteJob * const job = dynamic_cast<Vkontakte::NoteJob*>(kjob);
+    Q_ASSERT(noteJob);
     m_currentJobs.removeAll(job);
 
-    if ( noteJob->error() ) {
-        abortWithError( i18n( "Unable to get information about note from server: %1", noteJob->errorText() ) );
-    } else {
-        Item note = noteJob->property( "Item" ).value<Item>();
-        note.setPayload( toPimNote(*noteJob->noteInfo()) );
+    if (job->error())
+    {
+        abortWithError(i18n("Unable to get information about note from server: %1", job->errorText()));
+    }
+    else
+    {
+        Item note = job->property("Item").value<Item>();
+        note.setPayload(toPimNote(*job->noteInfo()));
         // how about note.setSize(noteJob->noteInfo()->asNote()->size()) ?
-        itemRetrieved( note );
+        itemRetrieved(note);
         resetState();
     }
 }

@@ -20,35 +20,36 @@
 #define SETTINGSDIALOG_H
 
 #include "ui_settingsdialog.h"
+#include <KDialog>
 
 class VkontakteResource;
 class KJob;
 
 class SettingsDialog : public KDialog, private Ui::SettingsDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
-  public:
-    SettingsDialog( VkontakteResource *parentResource, WId parentWindow );
+public:
+    SettingsDialog(VkontakteResource *parentResource, WId parentWindow);
     ~SettingsDialog();
 
-  private slots:
-    virtual void slotButtonClicked( int button );
+private slots:
+    virtual void slotButtonClicked(int button);
     void resetAuthentication();
     void showAuthenticationDialog();
-    void authenticationDone( const QString &accessToken );
+    void authenticationDone(const QString &accessToken);
     void authenticationCanceled();
-    void userInfoJobDone( KJob *job );
+    void userInfoJobDone(KJob *kjob);
 
-  private:
+private:
     void setupWidgets();
     void loadSettings();
     void saveSettings();
     void updateAuthenticationWidgets();
     void updateUserName();
 
-    VkontakteResource *mParentResource;
-    bool mTriggerSync;
+    VkontakteResource *m_parentResource;
+    bool m_triggerSync;
 };
 
 #endif
