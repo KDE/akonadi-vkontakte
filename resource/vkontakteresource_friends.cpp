@@ -57,7 +57,7 @@ void VkontakteResource::initialItemFetchFinished(KJob *kjob)
         setItemStreamingEnabled(true);
 
         // Getting the list of friends of the current user
-        Vkontakte::FriendListJob * const friendListJob = new Vkontakte::FriendListJob(Settings::self()->accessToken(), "0");
+        Vkontakte::FriendListJob * const friendListJob = new Vkontakte::FriendListJob(Settings::self()->accessToken());
         m_currentJobs << friendListJob;
         connect(friendListJob, SIGNAL(result(KJob*)), this, SLOT(friendListJobFinished(KJob*)));
         emit status(Running, i18n("Retrieving friends list."));
