@@ -24,7 +24,6 @@
 #include "settingsdialog.h"
 
 #include <libkvkontakte/friendlistjob.h>
-#include <libkvkontakte/profilephotojob.h>
 // #include <libkvkontakte/alleventslistjob.h>
 // #include <libkvkontakte/eventjob.h>
 #include <libkvkontakte/allnoteslistjob.h>
