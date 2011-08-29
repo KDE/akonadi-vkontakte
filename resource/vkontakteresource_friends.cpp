@@ -83,7 +83,7 @@ void VkontakteResource::friendListJobFinished(KJob *kjob)
     else
     {
         // Figure out which items are new or changed
-        foreach(const Vkontakte::UserInfoPtr &user, job->friends())
+        foreach(const Vkontakte::UserInfoPtr &user, job->list())
             m_newOrChangedFriends.append(user);
 
         // Delete items that are in the Akonadi DB but no on FB
@@ -91,7 +91,7 @@ void VkontakteResource::friendListJobFinished(KJob *kjob)
         foreach (const int friendId, m_existingFriends.keys())
         {
             bool found = false;
-            foreach (const Vkontakte::UserInfoPtr &user, job->friends())
+            foreach (const Vkontakte::UserInfoPtr &user, job->list())
                 if (user->uid() == friendId)
                 {
                     found = true;
