@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=VKontakte
 Name[bg]=VKontakte
+Name[bs]=VKontakte
 Name[cs]=VKontakte
 Name[da]=VKontakte
 Name[de]=VKontakte
@@ -26,6 +27,7 @@ Name[uk]=ВКонтактє
 Name[x-test]=xxVKontaktexx
 Comment=Makes your VKontakte data available in KDE
 Comment[bg]=Достъп до данните ви от VKontakte в KDE
+Comment[bs]=Čini vaše VKontakte podatke dostupnim u KDE
 Comment[cs]=Zpřístupňuje vaše data VKontakte v KDE
 Comment[da]=Gør dine VKontakte-data tilgængelige i KDE
 Comment[de]=Stellt Ihre VKontakte-Daten in KDE zur Verfügung
