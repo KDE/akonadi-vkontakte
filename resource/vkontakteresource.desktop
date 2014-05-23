@@ -2,6 +2,7 @@
 Name=VKontakte
 Name[bg]=VKontakte
 Name[bs]=VKontakte
+Name[ca]=VKontakte
 Name[cs]=VKontakte
 Name[da]=VKontakte
 Name[de]=VKontakte
@@ -29,6 +30,7 @@ Name[x-test]=xxVKontaktexx
 Comment=Makes your VKontakte data available in KDE
 Comment[bg]=Достъп до данните ви от VKontakte в KDE
 Comment[bs]=Čini vaše VKontakte podatke dostupnim u KDE
+Comment[ca]=Fa que les vostres dades de VKontakte estiguin disponibles al KDE
 Comment[cs]=Zpřístupňuje vaše data VKontakte v KDE
 Comment[da]=Gør dine VKontakte-data tilgængelige i KDE
 Comment[de]=Stellt Ihre VKontakte-Daten in KDE zur Verfügung
