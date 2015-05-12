@@ -40,7 +40,7 @@ void VkontakteResource::noteListFetched(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
     Vkontakte::AllNotesListJob * const job = dynamic_cast<Vkontakte::AllNotesListJob*>(kjob);
-    Q_ASSERT(listJob);
+    Q_ASSERT(job);
     m_currentJobs.removeAll(job);
 
     if (job->error())
@@ -80,9 +80,9 @@ void VkontakteResource::finishNotesFetching()
 void VkontakteResource::noteJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Q_ASSERT(m_currentJobs.indexOf(kjob) != -1);
     Vkontakte::NoteJob * const job = dynamic_cast<Vkontakte::NoteJob*>(kjob);
-    Q_ASSERT(noteJob);
+    Q_ASSERT(job);
     m_currentJobs.removeAll(job);
 
     if (job->error())

@@ -68,7 +68,7 @@ void VkontakteResource::messageListUsersFetched(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
     Vkontakte::UserInfoJob * const job = dynamic_cast<Vkontakte::UserInfoJob*>(kjob);
-    Q_ASSERT(usersJob);
+    Q_ASSERT(job);
     m_currentJobs.removeAll(job);
 
     if (job->error())

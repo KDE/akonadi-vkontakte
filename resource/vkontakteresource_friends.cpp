@@ -38,9 +38,9 @@ using namespace Akonadi;
 void VkontakteResource::initialItemFetchFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
+    Q_ASSERT( m_currentJobs.indexOf(kjob) != -1 );
     ItemFetchJob * const job = dynamic_cast<ItemFetchJob*>(kjob);
-    Q_ASSERT( itemFetchJob );
+    Q_ASSERT(job);
     m_currentJobs.removeAll(job);
 
     if (job->error())
@@ -70,9 +70,9 @@ void VkontakteResource::initialItemFetchFinished(KJob *kjob)
 void VkontakteResource::friendListJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Q_ASSERT(m_currentJobs.indexOf(kjob) != -1);
     Vkontakte::FriendListJob * const job = dynamic_cast<Vkontakte::FriendListJob*>(kjob);
-    Q_ASSERT(friendListJob);
+    Q_ASSERT(job);
     m_currentJobs.removeAll(kjob);
 
     if (job->error())
@@ -140,9 +140,9 @@ void VkontakteResource::fetchNewOrChangedFriends()
 void VkontakteResource::detailedFriendListJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Q_ASSERT(m_currentJobs.indexOf(kjob) != -1);
     Vkontakte::UserInfoFullJob * const job = dynamic_cast<Vkontakte::UserInfoFullJob*>(kjob);
-    Q_ASSERT(friendJob);
+    Q_ASSERT(job);
     m_currentJobs.removeAll(job);
 
     if (job->error())
@@ -191,9 +191,9 @@ void VkontakteResource::finishFriendFetching()
 void VkontakteResource::photoJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT( m_currentJobs.indexOf(job) != -1 );
+    Q_ASSERT( m_currentJobs.indexOf(kjob) != -1 );
     Vkontakte::PhotoJob * const job = dynamic_cast<Vkontakte::PhotoJob*>(kjob);
-    Q_ASSERT(photoJob);
+    Q_ASSERT(job);
     const Vkontakte::UserInfoPtr user = job->property("friend").value<Vkontakte::UserInfoPtr>();
     m_currentJobs.removeOne(kjob);
 
@@ -234,10 +234,10 @@ void VkontakteResource::photoJobFinished(KJob *kjob)
 void VkontakteResource::friendJobFinished(KJob *kjob)
 {
     Q_ASSERT(!m_idle);
-    Q_ASSERT(m_currentJobs.indexOf(job) != -1);
+    Q_ASSERT(m_currentJobs.indexOf(kjob) != -1);
     Vkontakte::UserInfoFullJob * const job = dynamic_cast<Vkontakte::UserInfoFullJob*>(kjob);
-    Q_ASSERT(friendJob);
-    Q_ASSERT(friendJob->userInfo().size() == 1);
+    Q_ASSERT(job);
+    Q_ASSERT(job->userInfo().size() == 1);
     m_currentJobs.removeAll(job);
 
     if (job->error())
