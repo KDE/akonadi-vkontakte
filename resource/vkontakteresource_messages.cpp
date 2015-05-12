@@ -58,6 +58,7 @@ void VkontakteResource::messageListFetched(KJob *kjob)
     foreach (const Vkontakte::MessageInfoPtr &item, m_allMessages)
         uidsSet.insert(item->uid());
 
+    // Get information about all users that you communicated with using messages
     Vkontakte::UserInfoJob * const usersJob = new Vkontakte::UserInfoJob(Settings::self()->accessToken(), uidsSet.toList());
     m_currentJobs << usersJob;
     connect(usersJob, SIGNAL(result(KJob*)), this, SLOT(messageListUsersFetched(KJob*)));
@@ -116,6 +117,11 @@ void VkontakteResource::messageDiscussionsFetched(KJob *kjob)
             singleUserMsgs.append(item);
     }
 
+    // "inReplyToMsg[msg] = inreplyto" means that
+    // the message "msg" was written in reply to "inreplyto".
+    //
+    // "inReplyToMsg[msg] = -1" means that "msg" in the root message,
+    // i.e. is not a reply to another message.
     QMap<int, int> inReplyToMsg;
     for (int i = 0; i < singleUserMsgs.size(); i ++)
     {
@@ -140,6 +146,8 @@ void VkontakteResource::messageDiscussionsFetched(KJob *kjob)
         inReplyToMsg[i] = j;
     }
 
+    // Flatten discussion threads: all messages
+    // in a thread will be direct children of the first message.
     for (int i = 0; i < singleUserMsgs.size(); i ++)
     {
         int j = i;
