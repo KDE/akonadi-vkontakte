@@ -1,7 +1,4 @@
 
-find_package(Boost 1.34.0)
-macro_log_feature(Boost_FOUND "Boost" "Boost C++ Libraries" "http://www.boost.org" TRUE "1.34.0" "Required by Akonadi.")
-
 if (XSLTPROC_EXECUTABLE)
   macro( kcfg_generate_dbus_interface _kcfg _name )
     add_custom_command(
